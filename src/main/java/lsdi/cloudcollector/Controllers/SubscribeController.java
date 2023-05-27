@@ -16,17 +16,14 @@ public class SubscribeController {
     RestTemplate restTemplate = new RestTemplate();
     private String workerUrl = System.getenv("WORKER_URL");
 
-    @PostMapping("/subscribe/{topic}")
-    public void subscribe(@PathVariable String topic) {
-        //TODO subscribe to fognode broker topic to receive events
+    @PostMapping("/subscribe/{eventType}")
+    public void subscribe(@PathVariable String eventType) {
         ObjectMapper mapper = new ObjectMapper();
-        mqttService.subscribe(topic, (t, message) -> {
-            //TODO post event to cloudworker
+        mqttService.subscribe("cdpo/event/" + eventType, (t, message) -> {
             new Thread(() -> {
                 try {
-                    System.out.println("Received message: " + message.getPayload());
                     Map<String, Object> event = mapper.readValue(message.getPayload(), Map.class);
-                    restTemplate.postForObject(workerUrl + "/event", event, Map.class);
+                    restTemplate.postForObject(workerUrl + "/event/" + eventType, event, Map.class);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
