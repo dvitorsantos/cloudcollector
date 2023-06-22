@@ -19,7 +19,7 @@ public class SubscribeController {
     @PostMapping("/subscribe/{eventType}")
     public void subscribe(@PathVariable String eventType) {
         ObjectMapper mapper = new ObjectMapper();
-        mqttService.subscribe("cdpo/event/" + eventType, (t, message) -> {
+        mqttService.subscribe("cdpo/CLOUD/event/" + eventType, (t, message) -> {
             new Thread(() -> {
                 try {
                     Map<String, Object> event = mapper.readValue(message.getPayload(), Map.class);
